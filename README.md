@@ -875,10 +875,4 @@ File samples/flavors.doc.html has been generated
 
 Tool will generate output HTML file that will look like this :
 
-![yaml to html](doc/k8s-html-out.png)
-
-# Saving HTML to Confluence page
-
-You can just copy the body part of HTML and copy it to JIRA/Confluence as show below
-
-![copy-to-confluence](doc/save-to-conflunece.gif)
+![yaml to html](doc/flavors-html-out.png)
