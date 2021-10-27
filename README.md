@@ -22,7 +22,13 @@ Convert YAML file to text/html table for documentation
    
    For field description, it will just generate random Lorem ipsum one-liner text using python library *loremipsum*   
 
-# Usage 
+# Usage
+
+```bash
+py -3 -m venv venv
+source venv/Scripts/activate
+pip install -r requirements.txt
+```
 
 ```bash
 > python yaml_to_table.py -h
@@ -42,123 +48,178 @@ text table will be printed as STDOUT - html table will be save in html file
 
 # Sample 
 
-Let's take an example of simple kubernetes deployment file (as show below)
+Let's take an example of simple yaml file (i.e. samples/flavors.yaml as show below)
 
 ```yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: nginx-deployment
-  labels:
-    app: nginx
-spec:
-  replicas: 3
-  selector:
-    matchLabels:
-      app: nginx
-  template:
-    metadata:
-      labels:
-        app: nginx
-    spec:
-      containers:
-      - name: nginx
-        image: nginx:1.7.9
-        ports:
-        - containerPort: 80
-```
-If you run script with this command :
-
-```bash
-python yaml_to_table.py --inputFile samples/k8sDeploy.yaml --out text
-```
-
-You will see output like this 
-
-```bash
-=> apiVersion:
-+------------+---------------+----------+--------------+
-| Field      | Example Value | Required | Description  |
-+------------+---------------+----------+--------------+
-| apiVersion | apps/v1       |          | Lorem ipsum. |
-+------------+---------------+----------+--------------+
-Raw yaml:
-	apiVersion: apps/v1
-
-=> kind:
-+-------+---------------+----------+------------------------+
-| Field | Example Value | Required | Description            |
-+-------+---------------+----------+------------------------+
-| kind  | Deployment    |          | Lorem ipsum dolor sit. |
-+-------+---------------+----------+------------------------+
-Raw yaml:
-	kind: Deployment
-
-=> metadata:
-+--------+------------------+----------+--------------------------------------------------------------------------------------+
-| Field  | Example Value    | Required | Description                                                                          |
-+--------+------------------+----------+--------------------------------------------------------------------------------------+
-| name   | nginx-deployment |          | Lorem ipsum dolor sit amet, consecteteur adipiscing elit b'nunc' b'id' b'eu'.        |
-| labels |                  |          | Lorem ipsum dolor sit amet, consecteteur adipiscing elit b'duis' b'eu' b'id' b'sit'. |
-|   app  | nginx            |          | Lorem ipsum dolor sit amet, consecteteur adipiscing.                                 |
-+--------+------------------+----------+--------------------------------------------------------------------------------------+
-Raw yaml:
-	metadata:
-	  name: nginx-deployment
-	  labels:
-	    app: nginx
-
-=> spec:
-+---------------------------+---------------+----------+---------------------------------------------------------------------------------------------------+
-| Field                     | Example Value | Required | Description                                                                                       |
-+---------------------------+---------------+----------+---------------------------------------------------------------------------------------------------+
-| replicas                  | 3             |          | Lorem ipsum.                                                                                      |
-| selector                  |               |          | Lorem ipsum.                                                                                      |
-|   matchLabels             |               |          | Lorem ipsum dolor sit amet, consecteteur adipiscing elit b'arcu' b'id' b'ad' b'neque' b'a' b'eu'. |
-|     app                   | nginx         |          | Lorem ipsum.                                                                                      |
-| template                  |               |          | Lorem ipsum dolor sit amet, consecteteur.                                                         |
-|   metadata                |               |          | Lorem ipsum dolor sit amet.                                                                       |
-|     labels                |               |          | Lorem ipsum dolor sit amet, consecteteur adipiscing.                                              |
-|       app                 | nginx         |          | Lorem ipsum dolor sit amet, consecteteur adipiscing elit b'diam' b'et'.                           |
-|   spec                    |               |          | Lorem ipsum dolor sit.                                                                            |
-|     containers            |               |          | Lorem ipsum dolor sit amet, consecteteur adipiscing elit b'quis'.                                 |
-|         name              | nginx         |          | Lorem ipsum.                                                                                      |
-|         image             | nginx:1.7.9   |          | Lorem ipsum dolor sit.                                                                            |
-|         ports             |               |          | Lorem ipsum dolor sit amet, consecteteur.                                                         |
-|             containerPort | 80            |          | Lorem ipsum dolor sit amet, consecteteur adipiscing elit.                                         |
-+---------------------------+---------------+----------+---------------------------------------------------------------------------------------------------+
-Raw yaml:
-	spec:
-	  replicas: 3
-	  selector:
-	    matchLabels:
-	      app: nginx
-	  template:
-	    metadata:
-	      labels:
-	        app: nginx
-	    spec:
-	      containers:
-	      - name: nginx
-	        image: nginx:1.7.9
-	        ports:
-	        - containerPort: 80
-
+---
+nova_flavors:
+  - disk: 10
+    name: m1.tiny
+    properties:
+      quota:disk_read_bytes_sec: 12500000
+      quota:disk_read_iops_sec: 1000
+      quota:disk_write_bytes_sec: 3125000
+      quota:disk_write_iops_sec: 250
+      quota:vif_inbound_average: 2500
+      quota:vif_inbound_burst: 3750000
+      quota:vif_inbound_peak: 12500
+      quota:vif_outbound_average: 2500
+      quota:vif_outbound_burst: 3750000
+      quota:vif_outbound_peak: 12500
+    ram: 1024
+    vcpus: 1
+  - disk: 10
+    name: m1.small
+    properties:
+      quota:disk_read_bytes_sec: 25000000
+      quota:disk_read_iops_sec: 2000
+      quota:disk_write_bytes_sec: 6250000
+      quota:disk_write_iops_sec: 500
+      quota:vif_inbound_average: 5000
+      quota:vif_inbound_burst: 7500000
+      quota:vif_inbound_peak: 25000
+      quota:vif_outbound_average: 5000
+      quota:vif_outbound_burst: 7500000
+      quota:vif_outbound_peak: 25000
+    ram: 2048
+    vcpus: 1
+  ...
+  - disk: 25
+    name: c2.s2.4xlarge
+    properties:
+      quota:disk_read_bytes_sec: 524288000
+      quota:disk_read_iops_sec: 32000
+      quota:disk_write_bytes_sec: 131072000
+      quota:disk_write_iops_sec: 8000
+      quota:vif_inbound_average: 512000
+      quota:vif_inbound_burst: 184320000
+      quota:vif_inbound_peak: 1020000
+      quota:vif_outbound_average: 512000
+      quota:vif_outbound_burst: 184320000
+      quota:vif_outbound_peak: 1020000
+    ram: 81920
+    vcpus: 40
 ```
 
-If I need html as output then I can run it like this 
+If you run script with this command:
 
 ```bash
-> python yaml_to_table.py --inputFile samples/k8sDeploy.yaml --out html
-File samples/k8sDeploy.doc.html has been generated
+python yaml_to_table.py --inputFile samples/flavors.yaml --out text
+```
+
+You will see output like this:
+
+```bash
+=> nova_flavors:
++------------------------------+---------------+
+| Field                        | Value         |
++------------------------------+---------------+
+|                              |               |
+| disk                         | 10            |
+| name                         | m1.tiny       |
+| properties                   |               |
+|   quota:disk_read_bytes_sec  | 12500000      |
+|   quota:disk_read_iops_sec   | 1000          |
+|   quota:disk_write_bytes_sec | 3125000       |
+|   quota:disk_write_iops_sec  | 250           |
+|   quota:vif_inbound_average  | 2500          |
+|   quota:vif_inbound_burst    | 3750000       |
+|   quota:vif_inbound_peak     | 12500         |
+|   quota:vif_outbound_average | 2500          |
+|   quota:vif_outbound_burst   | 3750000       |
+|   quota:vif_outbound_peak    | 12500         |
+| ram                          | 1024          |
+| vcpus                        | 1             |
+|                              |               |
+| disk                         | 10            |
+| name                         | m1.small      |
+| properties                   |               |
+|   quota:disk_read_bytes_sec  | 25000000      |
+|   quota:disk_read_iops_sec   | 2000          |
+|   quota:disk_write_bytes_sec | 6250000       |
+|   quota:disk_write_iops_sec  | 500           |
+|   quota:vif_inbound_average  | 5000          |
+|   quota:vif_inbound_burst    | 7500000       |
+|   quota:vif_inbound_peak     | 25000         |
+|   quota:vif_outbound_average | 5000          |
+|   quota:vif_outbound_burst   | 7500000       |
+|   quota:vif_outbound_peak    | 25000         |
+| ram                          | 2048          |
+| vcpus                        | 1             |
+|                              |               |
+| disk                         | 25            |
+| name                         | c2.s2.4xlarge |
+| properties                   |               |
+|   quota:disk_read_bytes_sec  | 524288000     |
+|   quota:disk_read_iops_sec   | 32000         |
+|   quota:disk_write_bytes_sec | 131072000     |
+|   quota:disk_write_iops_sec  | 8000          |
+|   quota:vif_inbound_average  | 512000        |
+|   quota:vif_inbound_burst    | 184320000     |
+|   quota:vif_inbound_peak     | 1020000       |
+|   quota:vif_outbound_average | 512000        |
+|   quota:vif_outbound_burst   | 184320000     |
+|   quota:vif_outbound_peak    | 1020000       |
+| ram                          | 81920         |
+| vcpus                        | 40            |
++------------------------------+---------------+
+Raw yaml:
+        nova_flavors:
+        - disk: 10
+          name: m1.tiny
+          properties:
+            quota:disk_read_bytes_sec: 12500000
+            quota:disk_read_iops_sec: 1000
+            quota:disk_write_bytes_sec: 3125000
+            quota:disk_write_iops_sec: 250
+            quota:vif_inbound_average: 2500
+            quota:vif_inbound_burst: 3750000
+            quota:vif_inbound_peak: 12500
+            quota:vif_outbound_average: 2500
+            quota:vif_outbound_burst: 3750000
+            quota:vif_outbound_peak: 12500
+          ram: 1024
+          vcpus: 1
+        - disk: 10
+          name: m1.small
+          properties:
+            quota:disk_read_bytes_sec: 25000000
+            quota:disk_read_iops_sec: 2000
+            quota:disk_write_bytes_sec: 6250000
+            quota:disk_write_iops_sec: 500
+            quota:vif_inbound_average: 5000
+            quota:vif_inbound_burst: 7500000
+            quota:vif_inbound_peak: 25000
+            quota:vif_outbound_average: 5000
+            quota:vif_outbound_burst: 7500000
+            quota:vif_outbound_peak: 25000
+          ram: 2048
+          vcpus: 1
+        - disk: 25
+          name: c2.s2.4xlarge
+          properties:
+            quota:disk_read_bytes_sec: 524288000
+            quota:disk_read_iops_sec: 32000
+            quota:disk_write_bytes_sec: 131072000
+            quota:disk_write_iops_sec: 8000
+            quota:vif_inbound_average: 512000
+            quota:vif_inbound_burst: 184320000
+            quota:vif_inbound_peak: 1020000
+            quota:vif_outbound_average: 512000
+            quota:vif_outbound_burst: 184320000
+            quota:vif_outbound_peak: 1020000
+          ram: 81920
+          vcpus: 40
+
+```
+
+If you need html as output then you can run it like this:
+
+```bash
+> python yaml_to_table.py --inputFile samples/flavors.yaml --out html
+File samples/flavors.doc.html has been generated
 ```
 
 Tool will generate output HTML file that will look like this :
 
-![yaml to html](doc/k8s-html-out.png)
-
-# Saving HTML to Confluence page 
-
-You can just copy the body part of HTML and copy it to JIRA/Confluence as show below 
-
-![copy-to-confluence](doc/save-to-conflunece.gif)
+![yaml to html](doc/flavors-html-out.png)
