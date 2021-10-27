@@ -2,11 +2,10 @@ import sys
 from pathlib import Path
 import oyaml as yaml
 from prettytable import PrettyTable
-from loremipsum import get_sentences
 import argparse
 
 """This program is helper tool for folks who need to document YAML file. It will read YAML and generate tables out of 
-each section of YAML - (as of now) it add two additional columns "itItRequired" and "description" 
+each section of YAML"
 
 It can generated (text) table or HTML table
 
@@ -22,13 +21,13 @@ metadata:
 Output Table :
 ~~~~~~~~~~~~
 metadata:
-+--------+------------------+----------+-----------------------------------------------------------+
-| Field  | Value            | Required | Description                                               |
-+--------+------------------+----------+-----------------------------------------------------------+
-| name   | nginx-deployment |    --    | Lorem ipsum dolor sit amet, consecteteur adipiscing elit. |
-| labels | --               |    --    | Lorem ipsum.                                              |
-|   app  | nginx            |    --    | Lorem ipsum.                                              |
-+--------+------------------+----------+-----------------------------------------------------------+
++--------+------------------+----------+
+| Field  | Value            | Required |
++--------+------------------+----------+
+| name   | nginx-deployment |    --    |
+| labels | --               |    --    |
+|   app  | nginx            |    --    |
++--------+------------------+----------+
 
 New table format:
 
@@ -42,28 +41,8 @@ New table format:
 
 """
 
-parser = argparse.ArgumentParser(description='YAML file to (HTML) table converter',
-                epilog='text table will be printed as STDOUT - html table will be save in html file ')
-parser.add_argument('--inputFile', dest='inputfile', required=True, help="input yaml file to process")
-parser.add_argument('--out', dest='format', choices=['txt', 'html', 'text'], help="convert yaml to text table or html "
-                                                                                  "table")
-args = parser.parse_args()
-
-outputFmt = args.format
-INPUT_YAML = args.inputfile
-
-if outputFmt == 'text' or outputFmt == 'txt':
-    PRINT_HTML = False
-else:
-    PRINT_HTML = True
-
-in_file = Path(INPUT_YAML)
-if not in_file.is_file():
-    sys.exit("Input file [" + INPUT_YAML + "] does not exists")
-
+# Constants
 SPACE_CHAR = '~'
-OUTPUT_HTMl = INPUT_YAML.replace("yaml", "doc.html")
-
 CSS_TEXT = """
         <html>
         <head>
@@ -126,7 +105,6 @@ def printDic(inDictionary, inPTable, indent):
     # Go ver dictionary
     for item in inDictionary:
         if isinstance(item, dict):  # If it again dictionary call same function with this new dictionary
-            # inPTable.add_row([SPACE_CHAR, SPACE_CHAR, SPACE_CHAR, SPACE_CHAR])
             inPTable.add_row([SPACE_CHAR, SPACE_CHAR])
             printDic(item, inPTable, indent)
         else:
@@ -136,62 +114,39 @@ def printDic(inDictionary, inPTable, indent):
             elif isinstance(inDictionary, list):
                 # If it simple array/list we just print all it's value and we are done
                 for _item in inDictionary:
-                    # inPTable.add_row([indent + _item, SPACE_CHAR+SPACE_CHAR, SPACE_CHAR+SPACE_CHAR, listToString(get_sentences(1, True))])
                     inPTable.add_row([indent + _item, SPACE_CHAR+SPACE_CHAR])
                 break
 
             # if it is dictionary or list process them accordingly
             if isinstance(moreStuff, dict):
-                # inPTable.add_row([indent + item, SPACE_CHAR+SPACE_CHAR, SPACE_CHAR+SPACE_CHAR, listToString(get_sentences(1, True))])
                 inPTable.add_row([indent + item, SPACE_CHAR+SPACE_CHAR])
                 printDic(moreStuff, inPTable, SPACE_CHAR + SPACE_CHAR + indent)
             elif isinstance(moreStuff, list):
 
                 # If we are not in nested call (as indent is empty string) we add one extra row in table (for clarity)
                 if indent == "":
-                    # inPTable.add_row([SPACE_CHAR, SPACE_CHAR, SPACE_CHAR, SPACE_CHAR])
                     inPTable.add_row([SPACE_CHAR, SPACE_CHAR])
                 #
-                # inPTable.add_row([indent + item, "", "", listToString(get_sentences(1, True))])
                 inPTable.add_row([indent + item, ""])
                 for dicInDic in moreStuff:
                     if dicInDic is not None:
                         if isinstance(dicInDic, dict):
                             printDic(dicInDic, inPTable, SPACE_CHAR + SPACE_CHAR + SPACE_CHAR + SPACE_CHAR + indent)
             else:
-                # Most of the call will end-up eventually here -
-                # this will print - key,value,isItRequired, Lorem ipsum (description)
-                # inPTable.add_row([indent + item, inDictionary[item], SPACE_CHAR+SPACE_CHAR, listToString(get_sentences(1, True))])
                 inPTable.add_row([indent + item, inDictionary[item]])
 
 
-"""
-    Read given yaml file 
-       process each to level element build table (HTML) out of it and print it console/file 
-"""
-with open(INPUT_YAML) as file:
-    # The FullLoader parameter handles the conversion from YAML
-    # scalar values to Python the dictionary format
-    yaml_file_object = yaml.load(file, Loader=yaml.FullLoader)
-
-    if PRINT_HTML:
-        html_st = []
-        f = open(OUTPUT_HTMl, "w")
-        html_st.append(CSS_TEXT)
-
+def generate_table(yaml_file_object):
     i = 0
     for key in yaml_file_object:
         body_st = []
         prettyTable = PrettyTable()
 
-        # prettyTable.field_names = ["Field", "Value", "Required", "Description"]
         prettyTable.field_names = ["Field", "Value"]
 
         if not PRINT_HTML:
             prettyTable.align["Field"] = "l"
             prettyTable.align["Value"] = "l"
-            # prettyTable.align["Required"] = "c"
-            # prettyTable.align["Description"] = "l"
 
         if isinstance(yaml_file_object, list):
             dic = yaml_file_object[i]
@@ -207,7 +162,6 @@ with open(INPUT_YAML) as file:
                 yaml_snippet = yaml.dump(dic)
 
         else:
-            # prettyTable.add_row([key, dic, SPACE_CHAR+SPACE_CHAR, get_sentences(1, True)[0]])
             prettyTable.add_row([key, dic])
             yaml_snippet = yaml.dump({key: dic})
 
@@ -238,4 +192,63 @@ with open(INPUT_YAML) as file:
         html_st.append("</html>")
         f.write(" ".join(html_st))
         f.close()
-        print("File " + OUTPUT_HTMl + " has been generated")
+        print("File " + OUTPUT_HTML + " has been generated")
+
+
+"""
+    Read given yaml file
+"""
+def read_input_file():
+    with open(INPUT_YAML) as file:
+        # The FullLoader parameter handles the conversion from YAML
+        # scalar values to Python the dictionary format
+        yaml_file_object = yaml.load(file, Loader=yaml.FullLoader)
+
+        if PRINT_HTML:
+            html_st = []
+            f = open(OUTPUT_HTML, "w")
+            html_st.append(CSS_TEXT)
+
+
+def main():
+    parser = argparse.ArgumentParser(description='YAML file to (HTML) table converter',
+                    epilog='text table will be printed as STDOUT - html table will be save in html file ')
+    parser.add_argument('--inputFile', dest='inputfile', help="input yaml file to process")
+    parser.add_argument('--inputDirectory', dest='inputdir', help="directory of input yaml files to process")
+    parser.add_argument('--outputFormat', dest='outformat', choices=['txt', 'html', 'text'], help="convert yaml to text table or html "
+                                                                                      "table")
+    parser.add_argument('--outputDirectory', dest='outdir', help="directory to output files to")
+    args = parser.parse_args()
+
+    # determine output format
+    if args.outformat in ['text', 'txt']:
+        PRINT_HTML = False
+    else:
+        PRINT_HTML = True
+
+    # setup input
+    if args.inputfile is not None and args.inputdir is None:
+        if Path(args.inputfile).is_file():
+            INPUT_YAML = args.inputfile
+        else:
+            sys.exit("Input file [" + args.inputfile + "] does not exists")
+    elif args.inputfile is None and args.inputdir is not None:
+        if Path(args.inputdir).is_dir():
+            # TODO make "main" function call for each file in inputdir
+            print("TODO: make main function call for each file in input dir")
+        else:
+            sys.exit("Input directory [" + args.inputdir + "] does not exists")
+    else:
+        sys.exit("Invalid option selected for input. Must specify '--inputFile' OR '--inputDirectory' but not both")
+
+
+    # setup output
+    # TODO make it work with input directory
+    OUTPUT_HTML = INPUT_YAML.replace("yaml", "doc.html")
+    
+    read_input_file()
+    generate_table()
+
+
+if __name__ == "__main__":
+    main()

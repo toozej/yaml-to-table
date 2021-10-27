@@ -14,18 +14,13 @@ Convert YAML file to text/html table for documentation
    
    This mainly uses two python libraries '*pyaml*' and '*prettyTable*' 
    
-   [PYAML](https://pyyaml.org/wiki/PyYAML): For reading the yaml file    
    [PrettyTable](https://pypi.org/project/PrettyTable/): For printing text tables or HTML table    
-   
-   ** Note ** : In this script I actually used 
    [oyaml](https://github.com/wimglenn/oyaml) as it preserves order in python dictionary
    
-   For field description, it will just generate random Lorem ipsum one-liner text using python library *loremipsum*   
-
 # Usage
 
 ```bash
-py -3 -m venv venv
+python3 -m venv venv
 source venv/Scripts/activate
 pip install -r requirements.txt
 ```
