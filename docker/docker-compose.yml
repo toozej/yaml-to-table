@@ -1,0 +1,37 @@
+---
+version: '3'
+services:
+  yaml_app:
+    container_name: yaml_app
+    build: ./app
+    restart: "no"
+    labels:
+      - "traefik.enable=false"
+    volumes:
+      - "./html:/html"
+      - "./input:/input"
+    command: python /app/yaml_to_table.py --inputDirectory /input --out html --outDirectory /html
+  yaml_www:
+    container_name: yaml_www
+    image: nginx:latest
+    restart: "no"
+    ports:
+      - "8003:80"
+    labels:
+      - "traefik.docker.network=traefik"
+      - "traefik.http.routers.yaml.entrypoints=http"
+      - "traefik.http.routers.yaml.rule=Host(`yaml.lab.test`)"
+      - "traefik.http.routers.yaml.middlewares=http-redirect-https@file,headers@file"
+      - "traefik.http.routers.yaml-secure.entrypoints=https"
+      - "traefik.http.routers.yaml-secure.rule=Host(`yaml.lab.test`)"
+      - "traefik.http.routers.yaml-secure.middlewares=headers@file"
+      - "traefik.http.routers.yaml-secure.tls=true"
+    networks:
+      - traefik
+    volumes:
+      - "./config/default.conf:/etc/nginx/conf.d/default.conf"
+      - "./html:/var/www/html:ro"
+networks:
+  traefik:
+    external:
+      name: traefik
