@@ -4,43 +4,6 @@ import oyaml as yaml
 from prettytable import PrettyTable
 import argparse
 
-"""This program is helper tool for folks who need to document YAML file. It will read YAML and generate tables out of 
-each section of YAML"
-
-It can generated (text) table or HTML table
-
-Example :
-
-Input YAML :
-~~~~~~~~~~
-metadata:
-   name: nginx-deployment
-    labels:
-      app: nginx
-
-Output Table :
-~~~~~~~~~~~~
-metadata:
-+--------+------------------+----------+
-| Field  | Value            | Required |
-+--------+------------------+----------+
-| name   | nginx-deployment |    --    |
-| labels | --               |    --    |
-|   app  | nginx            |    --    |
-+--------+------------------+----------+
-
-New table format:
-
-+--------+------------------+
-| Field  | Value            |
-+--------+------------------+
-| name   | nginx-deployment |
-| labels | --               |
-|   app  | nginx            |
-+--------+------------------+
-
-"""
-
 # Constants
 SPACE_CHAR = '~'
 CSS_TEXT = """
